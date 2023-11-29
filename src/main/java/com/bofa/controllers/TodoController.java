@@ -58,4 +58,15 @@ public class TodoController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Todo> deleteTodo(@PathVariable int id,
+                                           @RequestParam(name = "username", defaultValue = "no-username-provided") String username){
+
+        boolean isDeleted = todoService.deleteTodo(id, username);
+        if (isDeleted){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }

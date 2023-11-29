@@ -57,5 +57,17 @@ public class TodoService {
     }
 
 
+    public boolean deleteTodo(int id, String username) {
+        Optional<Todo> returnedTodo = todoRepo.findById(id);
+        Optional<User> returnedUser = userRepo.findUserByUsername(username);
 
+        if (returnedTodo.isPresent() && returnedUser.isPresent()){
+            todoRepo.delete(returnedTodo.get());
+            return !todoRepo.existsById(id);
+
+        }
+        return false;
+
+
+    }
 }

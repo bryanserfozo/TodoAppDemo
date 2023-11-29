@@ -1,3 +1,4 @@
+// const base_url = 'http://localhost'
 const base_url = 'http://ec2-107-21-58-133.compute-1.amazonaws.com'
 
 async function fetchAndPopulateTodoList() {
@@ -27,7 +28,7 @@ async function fetchAndPopulateTodoList() {
 // Function to populate to-do list
 function populateTodoList(todoItems) {
     const todoList = document.getElementById("todo-list");
-    todoList.innerHTML = ""
+    todoList.innerHTML=""
 
     todoItems.forEach(item => {
         const listItem = document.createElement("li");
@@ -36,6 +37,7 @@ function populateTodoList(todoItems) {
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="checkbox-${item.id}" onchange="handleCheckboxChange(this)">
                 <label class="custom-control-label" for="checkbox-${item.id}" id="label-${item.id}">${item.description}</label>
+                <span style="cursor: pointer; float: right; color: red;" onclick="deleteTodo(${item.id})"><i class="fas fa-trash"></i></span>
             </div>
         `;
 
@@ -68,6 +70,27 @@ async function handleCheckboxChange(checkbox) {
             
         } else{
             fetchAndPopulateTodoList();
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+async function deleteTodo(taskId) {
+    try {
+        // Send fetch request to delete a to-do
+        const response = await fetch(`http://localhost:8080/todo/${taskId}?username=${localStorage.getItem("username")}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.ok) {
+            // Fetch/populate the updated to-do list after deletion
+            fetchAndPopulateTodoList();
+        } else {
+            console.error("Error deleting to-do:", response.statusText);
         }
     } catch (error) {
         console.error("Error:", error);
@@ -113,8 +136,8 @@ async function attemptLogin() {
     };
 
     try {
-        // Send fetch request to ${base_url:8080/user/login
-        const response = await fetch(`${base_url}:8080/user/login`, {
+        // Send fetch request to http://localhost:8080/user/login
+        const response = await fetch("http://localhost:8080/user/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -125,14 +148,16 @@ async function attemptLogin() {
         // Check if the request was successful (status code 2xx)
         if (response.ok) {
             const responseData = await response.json();
-            // Handle the response from the server
-            console.log(responseData); // Log the response, adjust as needed
+            // Handle the response from the server (e.g., redirect, update UI)
+            console.log(responseData);
             // You can add logic here to redirect the user or perform other actions based on the response
             localStorage.setItem("username", responseData.username)
             location.reload()
-            
+        } else if (response.status === 400) {
+            // Display error message for 400 status (Bad Request)
+            document.getElementById("errorMessage").style.display = "block";
         } else {
-            // Handle error response (non-2xx status code)
+            // Handle other error responses (non-2xx status code)
             console.error("Error:", response.statusText);
         }
     } catch (error) {
@@ -141,26 +166,24 @@ async function attemptLogin() {
 }
 
 async function attemptRegistration() {
-    const username = document.getElementById("registerUsername").value;
-    const password = document.getElementById("registerPassword").value;
+    const newUsername = document.getElementById("registerUsername").value;
+    const newPassword = document.getElementById("registerPassword").value;
 
     // Check if username and password are not empty
-    if (username.trim() === "" || password.trim() === "") {
+    if (newUsername.trim() === "" || newPassword.trim() === "") {
         alert("Username and password are required");
         return;
     }
 
     // Prepare data for the fetch request
     const data = {
-        username: username,
-        password: password
+        username: newUsername,
+        password: newPassword
     };
 
-    console.log(data)
-
     try {
-        // Send fetch request to ${base_url:8080/user/register
-        const response = await fetch(`${base_url}:8080/user/register`, {
+        // Send fetch request to http://localhost:8080/user/register
+        const response = await fetch("http://localhost:8080/user/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -170,15 +193,16 @@ async function attemptRegistration() {
 
         // Check if the request was successful (status code 2xx)
         if (response.ok) {
-            const responseData = await response.json();
-            // Handle the response from the server
-            console.log(responseData); // Log the response, adjust as needed
+            // Handle the response from the server (e.g., redirect, update UI)
+            console.log("Registration successful");
             // You can add logic here to redirect the user or perform other actions based on the response
             localStorage.setItem("username", responseData.username)
             location.reload()
-            
+        } else if (response.status === 400) {
+            // Display error message for 400 status (Bad Request)
+            document.getElementById("registrationErrorMessage").style.display = "block";
         } else {
-            // Handle error response (non-2xx status code)
+            // Handle other error responses (non-2xx status code)
             console.error("Error:", response.statusText);
         }
     } catch (error) {
@@ -215,6 +239,43 @@ async function addNewTodo() {
     } catch (error) {
         console.error("Error:", error);
     }
+}
+
+
+// Function to check if a user is logged in and update the UI
+function checkLoginStatus() {
+    const username = localStorage.getItem("username");
+
+    if (username) {
+        // User is logged in
+        document.getElementById("loginMessage").hidden=true
+        document.getElementById("loginButton").hidden=true
+        document.getElementById("registerButton").hidden=true
+        document.getElementById("logoutMessage").hidden=false
+        document.getElementById("logoutButton").hidden=false
+    } else {
+        // User is not logged in
+        document.getElementById("loginMessage").hidden=false
+        document.getElementById("loginButton").hidden=false
+        document.getElementById("registerButton").hidden=false
+        document.getElementById("logoutMessage").hidden=true
+        document.getElementById("logoutButton").hidden=true
+    }
+}
+
+// Function to handle logout
+function logout() {
+    // Clear the username from local storage
+    localStorage.removeItem("username")
+
+    // Reload the page
+    location.reload();
+}
+
+// Example: Call checkLoginStatus after the page loads to initialize the UI
+function loadUp(){
+    checkLoginStatus();
+    showTodoPage();
 }
 
 
