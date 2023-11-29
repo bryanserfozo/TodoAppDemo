@@ -79,7 +79,7 @@ async function handleCheckboxChange(checkbox) {
 async function deleteTodo(taskId) {
     try {
         // Send fetch request to delete a to-do
-        const response = await fetch(`http://localhost:8080/todo/${taskId}?username=${localStorage.getItem("username")}`, {
+        const response = await fetch(`${base_url}:8080/todo/${taskId}?username=${localStorage.getItem("username")}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -137,7 +137,7 @@ async function attemptLogin() {
 
     try {
         // Send fetch request to http://localhost:8080/user/login
-        const response = await fetch("http://localhost:8080/user/login", {
+        const response = await fetch(`${base_url}:8080/user/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -183,7 +183,7 @@ async function attemptRegistration() {
 
     try {
         // Send fetch request to http://localhost:8080/user/register
-        const response = await fetch("http://localhost:8080/user/register", {
+        const response = await fetch(`${base_url}:8080/user/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
