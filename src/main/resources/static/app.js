@@ -1,4 +1,4 @@
-const base_url = 'http://localhost'
+const base_url = 'http://ec2-107-21-58-133.compute-1.amazonaws.com'
 
 async function fetchAndPopulateTodoList() {
 
