@@ -193,6 +193,7 @@ async function attemptRegistration() {
 
         // Check if the request was successful (status code 2xx)
         if (response.ok) {
+            const responseData = await response.json();
             // Handle the response from the server (e.g., redirect, update UI)
             console.log("Registration successful");
             // You can add logic here to redirect the user or perform other actions based on the response
